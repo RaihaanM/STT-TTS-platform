@@ -4,15 +4,16 @@ import { INDIAN_LANGUAGES } from './constants';
 import { translateText, textToSpeech } from './services/geminiService';
 import { decode, decodeAudioData } from './utils/audioUtils';
 import LanguagePanel from './components/LanguagePanel';
-import { ArrowPathIcon, ArrowsRightLeftIcon } from './components/icons';
+import { ArrowsRightLeftIcon, Cog6ToothIcon } from './components/icons';
+import SettingsModal from './components/SettingsModal';
+import OfflineIndicator from './components/OfflineIndicator';
 
 // Polyfill for webkitSpeechRecognition
-// FIX: Cast window to `any` to access non-standard SpeechRecognition APIs and prevent TypeScript errors.
 const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 const App: React.FC = () => {
     const [sourceLang, setSourceLang] = useState<Language>(INDIAN_LANGUAGES[5]); // Hindi
-    const [targetLang, setTargetLang] = useState<Language>(INDIAN_LANGUAGES[10]); // English (added to constants)
+    const [targetLang, setTargetLang] = useState<Language>(INDIAN_LANGUAGES[10]); // English
     const [sourceText, setSourceText] = useState<string>('');
     const [translatedText, setTranslatedText] = useState<string>('');
     const [isTranslating, setIsTranslating] = useState<boolean>(false);
@@ -20,13 +21,44 @@ const App: React.FC = () => {
     const [isPlayingSource, setIsPlayingSource] = useState<boolean>(false);
     const [isPlayingTarget, setIsPlayingTarget] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
+    const [showSettings, setShowSettings] = useState<boolean>(false);
+    
+    // Accessibility Settings
+    const [volume, setVolume] = useState<number>(1);
+    const [rate, setRate] = useState<number>(1);
 
-    // FIX: Use `any` for the SpeechRecognition instance type to resolve the type error.
     const recognitionRef = useRef<any | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
     const debounceTimeoutRef = useRef<number | null>(null);
 
-    // Initialize AudioContext on user interaction
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        const savedVolume = localStorage.getItem('app-translator-volume');
+        const savedRate = localStorage.getItem('app-translator-rate');
+        if (savedVolume) setVolume(parseFloat(savedVolume));
+        if (savedRate) setRate(parseFloat(savedRate));
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+    
+    const handleVolumeChange = (newVolume: number) => {
+        setVolume(newVolume);
+        localStorage.setItem('app-translator-volume', newVolume.toString());
+    };
+    
+    const handleRateChange = (newRate: number) => {
+        setRate(newRate);
+        localStorage.setItem('app-translator-rate', newRate.toString());
+    };
+
     const initAudioContext = () => {
         if (!audioContextRef.current) {
             try {
@@ -39,6 +71,10 @@ const App: React.FC = () => {
     };
 
     const handleTranslate = useCallback(async (text: string) => {
+        if (isOffline) {
+            setTranslatedText('');
+            return;
+        }
         if (!text.trim()) {
             setTranslatedText('');
             return;
@@ -55,7 +91,7 @@ const App: React.FC = () => {
         } finally {
             setIsTranslating(false);
         }
-    }, [sourceLang, targetLang]);
+    }, [sourceLang, targetLang, isOffline]);
 
 
     useEffect(() => {
@@ -79,6 +115,7 @@ const App: React.FC = () => {
     
 
     const handleSwapLanguages = () => {
+        if (isOffline) return;
         setSourceLang(targetLang);
         setTargetLang(sourceLang);
         setSourceText(translatedText);
@@ -94,7 +131,6 @@ const App: React.FC = () => {
 
         if (isRecording) {
             recognitionRef.current?.stop();
-            setIsRecording(false);
             return;
         }
 
@@ -124,42 +160,90 @@ const App: React.FC = () => {
         recognitionRef.current.start();
     };
     
+    const playAudioOffline = (text: string, langCode: string, setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>) => {
+        if (!('speechSynthesis' in window)) {
+            setError("Offline text-to-speech is not supported by this browser.");
+            setIsPlaying(false);
+            return;
+        }
+
+        window.speechSynthesis.cancel(); // Cancel any previous utterance
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = langCode;
+        utterance.volume = volume;
+        utterance.rate = rate;
+        utterance.onend = () => setIsPlaying(false);
+        utterance.onerror = (event) => {
+            console.error("SpeechSynthesis Error:", event);
+            setError("An error occurred during offline speech synthesis.");
+            setIsPlaying(false);
+        };
+
+        window.speechSynthesis.speak(utterance);
+    };
+
     const playAudio = async (text: string, lang: Language, setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>) => {
         if (!text.trim() || isPlayingSource || isPlayingTarget) return;
 
-        initAudioContext();
-        if (!audioContextRef.current) return;
-        
         setIsPlaying(true);
         setError(null);
+        
+        if (isOffline) {
+            playAudioOffline(text, lang.code, setIsPlaying);
+            return;
+        }
+
+        initAudioContext();
+        if (!audioContextRef.current) {
+            setIsPlaying(false);
+            return;
+        }
+        
         try {
-            // FIX: The language name is no longer needed as the model infers it from the text.
             const audioData = await textToSpeech(text);
             const decodedData = decode(audioData);
             const audioBuffer = await decodeAudioData(decodedData, audioContextRef.current, 24000, 1);
             
             const sourceNode = audioContextRef.current.createBufferSource();
+            const gainNode = audioContextRef.current.createGain();
+            
             sourceNode.buffer = audioBuffer;
-            sourceNode.connect(audioContextRef.current.destination);
+            gainNode.gain.value = volume;
+
+            sourceNode.connect(gainNode);
+            gainNode.connect(audioContextRef.current.destination);
+
             sourceNode.start();
             sourceNode.onended = () => setIsPlaying(false);
 
         } catch (err) {
             console.error(err);
-            setError(`Failed to generate audio for ${lang.name}.`);
-            setIsPlaying(false);
+            setError(`Failed to generate audio for ${lang.name}. Falling back to device voice.`);
+            playAudioOffline(text, lang.code, setIsPlaying); // Fallback on API error
         }
     };
 
     return (
         <div className="min-h-screen bg-gray-900 text-white font-sans p-4 sm:p-6 lg:p-8 flex flex-col">
-            <header className="text-center mb-8">
+            <header className="text-center mb-6 relative">
                 <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
                     Polyglot India
                 </h1>
                 <p className="text-gray-400 mt-2 text-lg">AI-Powered Speech and Text Translation</p>
+                <div className="absolute top-0 right-0">
+                    <button
+                        onClick={() => setShowSettings(true)}
+                        className="p-2 rounded-full bg-gray-700/50 hover:bg-purple-600 transition-colors duration-200"
+                        aria-label="Open accessibility settings"
+                    >
+                        <Cog6ToothIcon className="h-6 w-6 text-white" />
+                    </button>
+                </div>
             </header>
             
+            {isOffline && <OfflineIndicator />}
+
             {error && (
                 <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg relative mb-6 text-center" role="alert">
                     <span className="block sm:inline">{error}</span>
@@ -189,7 +273,8 @@ const App: React.FC = () => {
                 <div className="flex items-center justify-center w-full lg:w-auto my-2 lg:my-0">
                     <button
                         onClick={handleSwapLanguages}
-                        className="p-3 rounded-full bg-gray-700 hover:bg-purple-600 transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+                        disabled={isOffline}
+                        className="p-3 rounded-full bg-gray-700 hover:bg-purple-600 transition-all duration-200 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         aria-label="Swap languages"
                     >
                         <ArrowsRightLeftIcon className="h-6 w-6 text-white" />
@@ -206,9 +291,17 @@ const App: React.FC = () => {
                     isReadOnly={true}
                     isLoading={isTranslating}
                     showRecordButton={false}
-                    placeholder="Translation will appear here..."
+                    placeholder={isOffline ? "Translation is unavailable offline" : "Translation will appear here..."}
                 />
             </main>
+            <SettingsModal
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+                volume={volume}
+                onVolumeChange={handleVolumeChange}
+                rate={rate}
+                onRateChange={handleRateChange}
+            />
         </div>
     );
 };
