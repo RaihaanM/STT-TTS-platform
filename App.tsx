@@ -30,7 +30,6 @@ const App: React.FC = () => {
 
     const recognitionRef = useRef<any | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
-    const debounceTimeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
         const handleOnline = () => setIsOffline(false);
@@ -92,26 +91,6 @@ const App: React.FC = () => {
             setIsTranslating(false);
         }
     }, [sourceLang, targetLang, isOffline]);
-
-
-    useEffect(() => {
-        if (debounceTimeoutRef.current) {
-            clearTimeout(debounceTimeoutRef.current);
-        }
-        if (sourceText.trim()) {
-            debounceTimeoutRef.current = window.setTimeout(() => {
-                handleTranslate(sourceText);
-            }, 500);
-        } else {
-            setTranslatedText('');
-        }
-
-        return () => {
-            if (debounceTimeoutRef.current) {
-                clearTimeout(debounceTimeoutRef.current);
-            }
-        };
-    }, [sourceText, handleTranslate]);
     
 
     const handleSwapLanguages = () => {
@@ -265,9 +244,12 @@ const App: React.FC = () => {
                     onPlayAudio={() => playAudio(sourceText, sourceLang, setIsPlayingSource)}
                     isPlayingAudio={isPlayingSource}
                     isReadOnly={false}
-                    isLoading={false}
+                    isLoading={isTranslating} // Panel shows loading state during translation
                     showRecordButton={true}
                     placeholder="Enter text or use microphone..."
+                    showTranslateButton={true}
+                    onTranslate={() => handleTranslate(sourceText)}
+                    isOffline={isOffline}
                 />
 
                 <div className="flex items-center justify-center w-full lg:w-auto my-2 lg:my-0">
@@ -291,7 +273,7 @@ const App: React.FC = () => {
                     isReadOnly={true}
                     isLoading={isTranslating}
                     showRecordButton={false}
-                    placeholder={isOffline ? "Translation is unavailable offline" : "Translation will appear here..."}
+                    placeholder={isOffline ? "Translation is unavailable offline" : "Click 'Translate' to see the result..."}
                 />
             </main>
             <SettingsModal

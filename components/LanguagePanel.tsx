@@ -1,7 +1,7 @@
 import React from 'react';
 import { Language } from '../types';
 import { INDIAN_LANGUAGES } from '../constants';
-import { MicrophoneIcon, SpeakerWaveIcon, DocumentDuplicateIcon, StopCircleIcon } from './icons';
+import { MicrophoneIcon, SpeakerWaveIcon, DocumentDuplicateIcon, StopCircleIcon, PaperAirplaneIcon } from './icons';
 
 interface LanguagePanelProps {
     id: 'source' | 'target';
@@ -17,6 +17,9 @@ interface LanguagePanelProps {
     isPlayingAudio: boolean;
     showRecordButton: boolean;
     placeholder: string;
+    showTranslateButton?: boolean;
+    onTranslate?: () => void;
+    isOffline?: boolean;
 }
 
 const LanguagePanel: React.FC<LanguagePanelProps> = ({
@@ -32,7 +35,10 @@ const LanguagePanel: React.FC<LanguagePanelProps> = ({
     onPlayAudio,
     isPlayingAudio,
     showRecordButton,
-    placeholder
+    placeholder,
+    showTranslateButton,
+    onTranslate,
+    isOffline,
 }) => {
     const handleLanguageSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedLang = INDIAN_LANGUAGES.find(lang => lang.code === e.target.value);
@@ -104,7 +110,19 @@ const LanguagePanel: React.FC<LanguagePanelProps> = ({
                         <SpeakerWaveIcon className={`h-6 w-6 ${isPlayingAudio ? 'text-purple-400 animate-pulse' : ''}`} />
                      </button>
                 </div>
+                
                 <div className="flex items-center gap-2">
+                     {showTranslateButton && (
+                        <button
+                            onClick={onTranslate}
+                            disabled={!text || isLoading || isOffline}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-semibold"
+                            aria-label="Translate text"
+                        >
+                            <PaperAirplaneIcon className="h-5 w-5" />
+                            <span>Translate</span>
+                        </button>
+                     )}
                     <span className="text-sm text-gray-400" aria-live="polite">{text.length}</span>
                     <button
                         onClick={handleCopyToClipboard}
