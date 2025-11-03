@@ -1,0 +1,37 @@
+
+import { Language } from './types';
+
+export const INDIAN_LANGUAGES: Language[] = [
+  { code: 'as-IN', name: 'Assamese' },
+  { code: 'bn-IN', name: 'Bengali' },
+  { code: 'brx-IN', name: 'Bodo' },
+  { code: 'doi-IN', name: 'Dogri' },
+  { code: 'gu-IN', name: 'Gujarati' },
+  { code: 'hi-IN', name: 'Hindi' },
+  { code: 'kn-IN', name: 'Kannada' },
+  { code: 'ks-IN', name: 'Kashmiri' },
+  { code: 'kok-IN', name: 'Konkani' },
+  { code: 'mai-IN', name: 'Maithili' },
+  { code: 'en-IN', name: 'English' }, // Added for broader utility
+  { code: 'ml-IN', name: 'Malayalam' },
+  { code: 'mni-IN', name: 'Manipuri' },
+  { code: 'mr-IN', name: 'Marathi' },
+  { code: 'ne-IN', name: 'Nepali' },
+  { code: 'or-IN', name: 'Oriya' },
+  { code: 'pa-IN', name: 'Punjabi' },
+  { code: 'sa-IN', name: 'Sanskrit' },
+  { code: 'sat-IN', name: 'Santali' },
+  { code: 'sd-IN', name: 'Sindhi' },
+  { code: 'ta-IN', name: 'Tamil' },
+  { code: 'te-IN', name: 'Telugu' },
+  { code: 'ur-IN', name: 'Urdu' },
+  { code: 'gom-DEVA', name: 'Goan Konkani' },
+  { code: 'mag-DEVA', name: 'Magahi' },
+  { code: 'awa-DEVA', name: 'Awadhi' },
+  { code: 'bh-IN', name: 'Bhojpuri' },
+  { code: 'hne-DEVA', name: 'Chhattisgarhi' },
+  { code: 'kha-IN', name: 'Khasi' },
+  { code: 'lus-IN', name: 'Mizo' },
+  { code: 'sck-DEVA', name: 'Sadri' },
+  { code: 'tcy-DEVA', name: 'Tulu' },
+];
