@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -10,6 +10,53 @@ interface SettingsModalProps {
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, volume, onVolumeChange, rate, onRateChange }) => {
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+
+            if (event.key === 'Tab') {
+                if (!modalRef.current) return;
+                const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                if (focusableElements.length === 0) return;
+
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+
+                if (event.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        lastElement.focus();
+                        event.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastElement) {
+                        firstElement.focus();
+                        event.preventDefault();
+                    }
+                }
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        // Focus the first element when the modal opens
+        const firstFocusableElement = modalRef.current?.querySelector<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        firstFocusableElement?.focus();
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     return (
@@ -21,6 +68,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, volume, 
             aria-labelledby="settings-title"
         >
             <div 
+                ref={modalRef}
                 className="bg-gray-800 text-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4 border border-gray-700"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -72,9 +120,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, volume, 
                     <ul className="list-disc list-inside space-y-2">
                         <li>Select your source and target languages from the dropdowns.</li>
                         <li>Type text in the left panel or use the microphone icon to speak.</li>
-                        <li>Translation appears automatically in the right panel.</li>
+                        <li>Click "Translate" to see the result in the right panel.</li>
                         <li>Use the speaker icons to listen to the text in either language.</li>
-                        <li>Press the middle button to swap languages and translations.</li>
+                        <li>Use the `Tab` key to navigate and `Enter` to activate buttons.</li>
                     </ul>
                 </div>
             </div>

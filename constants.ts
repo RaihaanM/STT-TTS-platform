@@ -1,7 +1,7 @@
-
 import { Language } from './types';
 
-export const INDIAN_LANGUAGES: Language[] = [
+// The app's original focus on Indian languages
+const indianLanguages: Language[] = [
   { code: 'as-IN', name: 'Assamese' },
   { code: 'bn-IN', name: 'Bengali' },
   { code: 'brx-IN', name: 'Bodo' },
@@ -12,7 +12,7 @@ export const INDIAN_LANGUAGES: Language[] = [
   { code: 'ks-IN', name: 'Kashmiri' },
   { code: 'kok-IN', name: 'Konkani' },
   { code: 'mai-IN', name: 'Maithili' },
-  { code: 'en-IN', name: 'English' }, // Added for broader utility
+  { code: 'en-IN', name: 'English (India)' },
   { code: 'ml-IN', name: 'Malayalam' },
   { code: 'mni-IN', name: 'Manipuri' },
   { code: 'mr-IN', name: 'Marathi' },
@@ -34,4 +34,74 @@ export const INDIAN_LANGUAGES: Language[] = [
   { code: 'lus-IN', name: 'Mizo' },
   { code: 'sck-DEVA', name: 'Sadri' },
   { code: 'tcy-DEVA', name: 'Tulu' },
+];
+
+// Added international languages
+const internationalLanguages: Language[] = [
+  { code: 'af-ZA', name: 'Afrikaans' },
+  { code: 'sq-AL', name: 'Albanian' },
+  { code: 'ar-SA', name: 'Arabic' },
+  { code: 'hy-AM', name: 'Armenian' },
+  { code: 'az-AZ', name: 'Azerbaijani' },
+  { code: 'eu-ES', name: 'Basque' },
+  { code: 'be-BY', name: 'Belarusian' },
+  { code: 'bs-BA', name: 'Bosnian' },
+  { code: 'bg-BG', name: 'Bulgarian' },
+  { code: 'ca-ES', name: 'Catalan' },
+  { code: 'zh-CN', name: 'Chinese (Simplified)' },
+  { code: 'zh-TW', name: 'Chinese (Traditional)' },
+  { code: 'hr-HR', name: 'Croatian' },
+  { code: 'cs-CZ', name: 'Czech' },
+  { code: 'da-DK', name: 'Danish' },
+  { code: 'nl-NL', name: 'Dutch' },
+  { code: 'en-US', name: 'English (US)' },
+  { code: 'en-GB', name: 'English (UK)' },
+  { code: 'et-EE', name: 'Estonian' },
+  { code: 'fil-PH', name: 'Filipino' },
+  { code: 'fi-FI', name: 'Finnish' },
+  { code: 'fr-FR', name: 'French' },
+  { code: 'gl-ES', name: 'Galician' },
+  { code: 'ka-GE', name: 'Georgian' },
+  { code: 'de-DE', name: 'German' },
+  { code: 'el-GR', name: 'Greek' },
+  { code: 'he-IL', name: 'Hebrew' },
+  { code: 'hu-HU', name: 'Hungarian' },
+  { code: 'is-IS', name: 'Icelandic' },
+  { code: 'id-ID', name: 'Indonesian' },
+  { code: 'ga-IE', name: 'Irish' },
+  { code: 'it-IT', name: 'Italian' },
+  { code: 'ja-JP', name: 'Japanese' },
+  { code: 'ko-KR', name: 'Korean' },
+  { code: 'lv-LV', name: 'Latvian' },
+  { code: 'lt-LT', name: 'Lithuanian' },
+  { code: 'mk-MK', name: 'Macedonian' },
+  { code: 'ms-MY', name: 'Malay' },
+  { code: 'mt-MT', name: 'Maltese' },
+  { code: 'no-NO', name: 'Norwegian' },
+  { code: 'fa-IR', name: 'Persian' },
+  { code: 'pl-PL', name: 'Polish' },
+  { code: 'pt-PT', name: 'Portuguese (Portugal)' },
+  { code: 'pt-BR', name: 'Portuguese (Brazil)' },
+  { code: 'ro-RO', name: 'Romanian' },
+  { code: 'ru-RU', name: 'Russian' },
+  { code: 'sr-RS', name: 'Serbian' },
+  { code: 'sk-SK', name: 'Slovak' },
+  { code: 'sl-SI', name: 'Slovenian' },
+  { code: 'es-ES', name: 'Spanish (Spain)' },
+  { code: 'es-MX', name: 'Spanish (Mexico)' },
+  { code: 'sw-KE', name: 'Swahili' },
+  { code: 'sv-SE', name: 'Swedish' },
+  { code: 'th-TH', name: 'Thai' },
+  { code: 'tr-TR', name: 'Turkish' },
+  { code: 'uk-UA', name: 'Ukrainian' },
+  { code: 'vi-VN', name: 'Vietnamese' },
+  { code: 'cy-GB', name: 'Welsh' },
+];
+
+// Sort international languages alphabetically
+internationalLanguages.sort((a, b) => a.name.localeCompare(b.name));
+
+export const SUPPORTED_LANGUAGES: Language[] = [
+    ...indianLanguages,
+    ...internationalLanguages,
 ];

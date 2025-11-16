@@ -1,6 +1,6 @@
 import React from 'react';
 import { Language } from '../types';
-import { INDIAN_LANGUAGES } from '../constants';
+import { SUPPORTED_LANGUAGES } from '../constants';
 import { MicrophoneIcon, SpeakerWaveIcon, DocumentDuplicateIcon, StopCircleIcon, PaperAirplaneIcon } from './icons';
 
 interface LanguagePanelProps {
@@ -41,7 +41,7 @@ const LanguagePanel: React.FC<LanguagePanelProps> = ({
     isOffline,
 }) => {
     const handleLanguageSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedLang = INDIAN_LANGUAGES.find(lang => lang.code === e.target.value);
+        const selectedLang = SUPPORTED_LANGUAGES.find(lang => lang.code === e.target.value);
         if (selectedLang) {
             onLanguageChange(selectedLang);
         }
@@ -68,7 +68,7 @@ const LanguagePanel: React.FC<LanguagePanelProps> = ({
                     className="bg-transparent text-white font-semibold focus:outline-none w-full"
                     aria-label={`Select language for ${id} panel`}
                 >
-                    {INDIAN_LANGUAGES.map(lang => (
+                    {SUPPORTED_LANGUAGES.map(lang => (
                         <option key={lang.code} value={lang.code} className="bg-gray-800 text-white">
                             {lang.name}
                         </option>
@@ -123,7 +123,7 @@ const LanguagePanel: React.FC<LanguagePanelProps> = ({
                             <span>Translate</span>
                         </button>
                      )}
-                    <span className="text-sm text-gray-400" aria-live="polite">{text.length}</span>
+                    <span className="text-sm text-gray-400">{text.length}<span className="sr-only"> characters</span></span>
                     <button
                         onClick={handleCopyToClipboard}
                         disabled={!text}
