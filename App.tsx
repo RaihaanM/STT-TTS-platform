@@ -288,9 +288,9 @@ const App: React.FC = () => {
             <div className="sr-only" aria-live="polite">{screenReaderMessage}</div>
             <header className="text-center mb-6 relative">
                 <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-                    Polyglot India
+                    LangLink
                 </h1>
-                <p className="text-gray-400 mt-2 text-lg">AI-Powered Speech and Text Translation</p>
+                <p className="text-gray-400 mt-2 text-lg">SpeakEasy - Speech and Text Translation</p>
                 <div className="absolute top-0 right-0 flex items-center gap-2">
                      <button
                         onClick={() => setShowHistory(true)}

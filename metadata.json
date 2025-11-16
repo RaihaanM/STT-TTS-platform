@@ -1,6 +1,6 @@
 {
-  "name": "Polyglot India - AI Translator",
-  "description": "A powerful AI-driven translation tool for Indian languages, featuring real-time speech-to-text, text-to-speech, and text translation capabilities powered by Gemini.",
+  "name": "LangLink - SpeakEasy Translator",
+  "description": "A powerful AI-driven translation tool, featuring real-time speech-to-text, text-to-speech, and text translation capabilities powered by Gemini.",
   "requestFramePermissions": [
     "microphone"
   ]
