@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,25 +8,25 @@
     <title>LangLink - SpeakEasy Translator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Custom scrollbar for a more modern look */
+      /* Custom scrollbar for a more modern look - Light Theme */
       ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #1f2937; /* bg-gray-800 */
+        background: #f1f5f9; /* bg-slate-100 */
       }
       ::-webkit-scrollbar-thumb {
-        background: #4b5563; /* bg-gray-600 */
+        background: #cbd5e1; /* bg-slate-300 */
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #6b7280; /* bg-gray-500 */
+        background: #94a3b8; /* bg-slate-400 */
       }
 
       /* Accessibility: Custom focus ring for better visibility */
       *:focus-visible {
-        outline: 3px solid #a855f7; /* purple-500 */
+        outline: 3px solid #10b981; /* emerald-500 */
         outline-offset: 2px;
         border-radius: 4px;
       }
@@ -42,6 +43,11 @@
         white-space: nowrap;
         border-width: 0;
       }
+
+      /* High Contrast overrides handled via class on html */
+      .high-contrast {
+        filter: contrast(1.5);
+      }
     </style>
   <script type="importmap">
 {
@@ -54,7 +60,7 @@
 }
 </script>
 </head>
-  <body class="bg-gray-900">
+  <body class="bg-slate-50 text-slate-900 transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
